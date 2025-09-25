@@ -9,3 +9,7 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
+
+jwt:
+  secret: "change-this-to-a-very-long-random-secret-key-at-least-32-bytes"
+  expiration-millis: 3600000  # 1시간 (1000 * 60 * 60)

@@ -9,7 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import com.cloudproject.community_backend.entity.User;
 import com.cloudproject.community_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,8 +23,9 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    // DTO를 정의해서 Swagger에서 Request Body를 더 명확히 보여주기
+    // DTO 정의
     public record UserRegisterRequest(
             @Schema(description = "사용자 이메일", example = "test@example.com")
             String email,
@@ -36,13 +40,22 @@ public class UserController {
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청")
+            @ApiResponse(responseCode = "400", description = "이미 가입된 이메일")
     })
     @PostMapping("/register")
     public User register(@RequestBody UserRegisterRequest req) {
+        // ✅ 이메일 중복 체크
+        if (userRepository.findByEmail(req.email()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 가입된 이메일입니다.");
+        }
+
         User user = new User();
         user.setEmail(req.email());
-        user.setPassword(req.password()); // ⚠️ 실제로는 암호화를 반드시 해야 합니다.
+
+        // ✅ 비밀번호 암호화 후 저장
+        String encodedPw = passwordEncoder.encode(req.password());
+        user.setPassword(encodedPw);
+
         user.setUsername(req.username());
         return userRepository.save(user);
     }

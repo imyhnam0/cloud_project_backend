@@ -19,6 +19,7 @@ public class User {
 
     private String username;
     private String password;
+    @Column(nullable = false, unique = true)
     private String email;
 
     private LocalDateTime createdAt = LocalDateTime.now();
