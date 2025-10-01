@@ -8,27 +8,17 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "schools")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class School {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
-
-    private String password;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    // ✅ 학교 정보 (FK)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id", nullable = false)
-    private School school;
-
+    private String name; // 학교 이름
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
